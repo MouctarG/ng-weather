@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
-import {LocationService} from "../location.service";
+import {LocationService} from "../services/location.service";
+import {FormGroup} from '@angular/forms';
 
 @Component({
   selector: 'app-zipcode-entry',
@@ -10,7 +11,9 @@ export class ZipcodeEntryComponent {
   constructor(private service : LocationService) { }
 
   addLocation(zipcode : string){
-    this.service.addLocation(zipcode);
+    if (zipcode.trim().length > 0){
+      this.service.addLocation(zipcode);
+    }
   }
 
 }

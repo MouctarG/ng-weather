@@ -1,7 +1,8 @@
 import { Component } from '@angular/core';
-import {WeatherService} from '../weather.service';
+import {WeatherService} from '../services/weather.service';
 import {ActivatedRoute} from '@angular/router';
 import {Forecast} from './forecast.type';
+import {CacheService} from '../cache-handler/cache.service';
 
 @Component({
   selector: 'app-forecasts-list',
@@ -13,11 +14,21 @@ export class ForecastsListComponent {
   zipcode: string;
   forecast: Forecast;
 
-  constructor(protected weatherService: WeatherService, route : ActivatedRoute) {
+  constructor(protected weatherService: WeatherService, route : ActivatedRoute, private cacheService: CacheService) {
     route.params.subscribe(params => {
       this.zipcode = params['zipcode'];
-      weatherService.getForecast(this.zipcode)
-        .subscribe(data => this.forecast = data);
+      const data = this.cacheService.getForecastInCache(this.zipcode);
+      if (data) {
+        this.forecast =  JSON.parse(data)
+      }
+      else {
+        weatherService.getForecast(this.zipcode)
+            .subscribe(data => {
+              this.forecast = data
+              this.cacheService.setForecastInCache(this.zipcode,this.forecast)
+            });
+      }
+
     });
   }
 }
